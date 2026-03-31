@@ -54,7 +54,7 @@ halo2_proofs = { version = "0.3", optional = true }
 
 # Machine Learning dependencies (Phase 7)
 ndarray = { version = "0.15", features = ["serde"], optional = true }
-tch = { version = "0.15", optional = true }  # PyTorch bindings for Rust
+tch = { version = "0.19", optional = true }  # PyTorch bindings for Rust
 
 # Gnark bindings (Phase 5) - placeholder for future Go interop
 # gnark-ffi = { version = "0.1", optional = true }
@@ -78,3 +78,8 @@ path = "cli/main.rs"
 lto = true
 codegen-units = 1
 opt-level = 3
+
+[[example]]
+name = "ml_fitness_demo"
+path = "examples/ml_fitness_demo.rs"
+required-features = ["ml"]

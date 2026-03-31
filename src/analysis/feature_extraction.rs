@@ -645,11 +645,13 @@ impl CircuitFeatureExtractor {
         ]
     }
 
+    #[cfg(feature = "ml")]
     /// Convert features to ndarray Array1 for ML processing
     pub fn features_to_array(features: &CircuitFeatures) -> Array1<f64> {
         Array1::from(features.feature_vector.clone())
     }
 
+    #[cfg(feature = "ml")]
     /// Create feature matrix from multiple circuits
     pub fn create_feature_matrix(features_list: &[CircuitFeatures]) -> Array2<f64> {
         if features_list.is_empty() {
