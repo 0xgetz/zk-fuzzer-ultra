@@ -52,12 +52,17 @@ chrono = { version = "0.4", features = ["serde"] }
 # Halo2 framework support (Phase 5)
 halo2_proofs = { version = "0.3", optional = true }
 
+# Machine Learning dependencies (Phase 7)
+ndarray = { version = "0.15", features = ["serde"], optional = true }
+tch = { version = "0.15", optional = true }  # PyTorch bindings for Rust
+
 # Gnark bindings (Phase 5) - placeholder for future Go interop
 # gnark-ffi = { version = "0.1", optional = true }
 
 [features]
 default = []
 halo2 = ["halo2_proofs"]
+ml = ["tch", "ndarray"]
 gnark = []
 dashboard = []
 
