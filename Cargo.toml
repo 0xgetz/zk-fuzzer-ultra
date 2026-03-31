@@ -1,0 +1,75 @@
+[package]
+name = "zk-circuit-fuzzer"
+version = "0.1.0"
+edition = "2021"
+authors = ["ZK Circuit Fuzzer Team"]
+description = "Ultra-modern ZK Circuit Fuzzer for finding bugs in zero-knowledge circuits"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/0xgetz/zk-circuit-fuzzer"
+keywords = ["zk", "circuit", "fuzzer", "security", "cryptography"]
+categories = ["cryptography", "development-tools", "security"]
+
+[dependencies]
+# Parsing
+nom = "7.1"
+nom_locate = "4.2"
+
+# SMT Solver
+z3 = "0.12"
+
+# Parallelism
+rayon = "1.10"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Output formatting
+colored = "2.1"
+
+# Big integer support for ZK circuits
+num-bigint = { version = "0.4", features = ["serde"] }
+num-traits = "0.2"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Random number generation
+rand = "0.8"
+rand_chacha = "0.3"
+
+# Web Dashboard (Phase 5)
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+tower-http = { version = "0.5", features = ["cors", "fs"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Halo2 framework support (Phase 5)
+halo2_proofs = { version = "0.3", optional = true }
+
+# Gnark bindings (Phase 5) - placeholder for future Go interop
+# gnark-ffi = { version = "0.1", optional = true }
+
+[features]
+default = []
+halo2 = ["halo2_proofs"]
+gnark = []
+dashboard = []
+
+[lib]
+name = "zk_circuit_fuzzer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "zk-fuzzer"
+path = "cli/main.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3

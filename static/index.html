@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZK Circuit Fuzzer Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ZK Circuit Fuzzer</h1>
+            <nav>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#campaigns">Campaigns</a>
+                <a href="#bugs">Bugs</a>
+                <a href="#settings">Settings</a>
+            </nav>
+        </header>
+
+        <main>
+            <section id="metrics" class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Active Campaigns</h3>
+                    <div class="metric-value" id="active-campaigns">0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Total Bugs Found</h3>
+                    <div class="metric-value" id="total-bugs">0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Inputs Tested</h3>
+                    <div class="metric-value" id="inputs-tested">0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Avg Coverage</h3>
+                    <div class="metric-value" id="avg-coverage">0%</div>
+                </div>
+            </section>
+
+            <section id="campaigns" class="content-section">
+                <h2>Fuzzing Campaigns</h2>
+                <div class="campaign-list" id="campaign-list">
+                    <!-- Campaigns will be loaded dynamically -->
+                </div>
+            </section>
+
+            <section id="bugs" class="content-section">
+                <h2>Discovered Bugs</h2>
+                <div class="bug-list" id="bug-list">
+                    <!-- Bugs will be loaded dynamically -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>ZK Circuit Fuzzer Dashboard v1.0.0</p>
+        </footer>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
