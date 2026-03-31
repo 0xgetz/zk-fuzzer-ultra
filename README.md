@@ -4,7 +4,7 @@ Ultra-modern ZK Circuit Fuzzer for finding bugs in zero-knowledge circuits.
 
 ## Overview
 
-This project provides comprehensive fuzzing capabilities for zero-knowledge circuit implementations across multiple proof systems. It includes advanced constraint analysis, genetic algorithm-based input generation, and distributed fuzzing support.
+This project provides comprehensive fuzzing capabilities for zero-knowledge circuit implementations across multiple proof systems. It includes advanced constraint analysis, genetic algorithm-based input generation, property-based testing, and distributed fuzzing support.
 
 ## Supported Frameworks
 
@@ -28,6 +28,22 @@ This project provides comprehensive fuzzing capabilities for zero-knowledge circ
 - LLM-assisted bug classification
 - Automatic crash triaging
 
+### Advanced Constraint Solving (Phase 6)
+- Z3 SMT solver integration
+- Support for integer, boolean, real, and bitvector constraints
+- Linear and nonlinear arithmetic
+- Constraint optimization (maximize/minimize)
+- Model extraction and unsat core analysis
+- Backtracking and incremental solving
+
+### Property-Based Testing (Phase 6)
+- QuickCheck-style generators
+- Arbitrary trait for custom types
+- Property combinators
+- Automatic shrinking for minimal counterexamples
+- Invariant checking framework
+- Statistical distribution testing
+
 ### Web Dashboard (Phase 5)
 - Real-time campaign monitoring
 - Bug discovery tracking
@@ -50,6 +66,9 @@ cargo build --release --features halo2
 
 # Include all Phase 5 features
 cargo build --release --all-features
+
+# Include Phase 6 features (Z3, QuickCheck, Proptest)
+cargo build --release --features phase6
 ```
 
 ## Usage
@@ -81,6 +100,12 @@ cargo build --release --all-features
 
 # Run analysis only
 ./target/release/zk-fuzzer analyze --target circom --input circuit.circom
+
+# Run with constraint-guided fuzzing (Phase 6)
+./target/release/zk-fuzzer fuzz --target circom --input circuit.circom --constraint-guided
+
+# Run with property-based testing (Phase 6)
+./target/release/zk-fuzzer fuzz --target circom --input circuit.circom --property-testing
 ```
 
 ## Project Structure
@@ -88,7 +113,13 @@ cargo build --release --all-features
 ```
 zk-circuit-fuzzer/
 ├── src/
+│   ├── main.rs             # Application entry point
 │   ├── lib.rs              # Library entry point
+│   ├── genetic.rs          # Genetic algorithm core
+│   ├── bug_reporter.rs     # Bug reporting system
+│   ├── constraint_solver.rs # Z3 SMT constraint solver (Phase 6)
+│   ├── property_testing.rs # Property-based testing framework (Phase 6)
+│   ├── integration.rs      # Integration module (Phase 6)
 │   ├── targets/            # Framework-specific implementations
 │   │   ├── mod.rs
 │   │   ├── circom.rs
@@ -115,6 +146,130 @@ zk-circuit-fuzzer/
 ├── cli/
 │   └── main.rs             # CLI entry point
 └── Cargo.toml
+```
+
+## Phase 6 Completion Status
+
+### Completed Features
+
+- [x] **Advanced Constraint Solver with Z3 SMT**
+  - Full Z3 integration via z3 crate
+  - Support for multiple constraint types:
+    - Integer constraints (equality, inequality, comparisons)
+    - Boolean constraints (AND, OR, NOT)
+    - Real number constraints
+    - Bitvector operations (extraction, concatenation)
+  - Arithmetic operations (add, sub, mul, div, mod)
+  - Optimization objectives (maximize, minimize)
+  - Model extraction and solution analysis
+  - Unsat core extraction for debugging
+  - Incremental solving with push/pop
+  - 30-second timeout per solve
+
+- [x] **Property-Based Testing Framework**
+  - QuickCheck-style arbitrary value generation
+  - Arbitrary trait implementation for common types (bool, u8-u64, i32, i64, f32, f64, String, Vec<T>)
+  - Generator combinators:
+    - `any<T>()` - generate arbitrary values
+    - `range(low, high, gen)` - bounded generation
+    - `one_of(generators)` - choice combinators
+    - `vector(max_len)` / `fixed_vector(len)` - collection generators
+    - `option<T>()` / `result<T, E>()` - optional/result types
+  - Property testing with automatic shrinking
+  - Invariant checking framework
+  - Statistical distribution testing (chi-squared test for uniformity)
+  - Configurable test count and shrink limits
+  - Deterministic seeding for reproducibility
+
+- [x] **Integration Module**
+  - IntegratedFuzzer combining GA + constraints + property testing
+  - Constraint-guided mutation operators
+  - Constraint-guided individual generation
+  - Invariant-preserving evolution
+  - CircuitPropertyTester for input validation
+  - FuzzingStatistics for comprehensive metrics
+  - Solution-to-genome conversion
+
+- [x] **Dependencies Updated**
+  - Added z3 = "0.12" for SMT solving
+  - Added quickcheck = "1.0" for property-based testing
+  - Added proptest = "1.4" for additional property testing
+  - Updated Cargo.toml with new feature flags
+
+### New Modules
+
+| Module | Description |
+|--------|-------------|
+| `constraint_solver.rs` | Z3-based constraint solving and optimization |
+| `property_testing.rs` | QuickCheck-style generators and invariant checking |
+| `integration.rs` | Integration of all fuzzing components |
+
+### API Reference (Phase 6)
+
+#### Constraint Solver
+
+```rust
+use zk_circuit_fuzzer::constraint_solver::{ConstraintSolver, ConstraintExpr, ConstraintType};
+
+let mut solver = ConstraintSolver::new();
+solver.declare_int_var("x");
+solver.declare_int_var("y");
+
+solver.add_constraint(ConstraintExpr::BinOp {
+    op: ConstraintType::Equality,
+    left: Box::new(ConstraintExpr::Add(vec![
+        ConstraintExpr::Var("x".to_string()),
+        ConstraintExpr::Var("y".to_string()),
+    ])),
+    right: Box::new(ConstraintExpr::IntConst(42)),
+});
+
+let result = solver.solve();
+if result.sat {
+    for (name, value) in &result.model {
+        println!("{} = {}", name, value);
+    }
+}
+```
+
+#### Property Testing
+
+```rust
+use zk_circuit_fuzzer::property_testing::{PropertyTester, InvariantChecker, generators, Arbitrary};
+
+let tester = PropertyTester::new()
+    .with_tests(100)
+    .with_seed(42);
+
+let results = tester.test_property(
+    |rng| u32::arbitrary(rng),
+    |&x| x == u32::MAX || x < x.wrapping_add(1),
+);
+
+// Invariant checking
+let checker = InvariantChecker::<u32>::new()
+    .invariant("positive", |&x| x > 0)
+    .invariant("bounded", |&x| x < 1000);
+
+assert!(checker.all_hold(&42));
+```
+
+#### Integrated Fuzzing
+
+```rust
+use zk_circuit_fuzzer::integration::{IntegratedConfig, IntegratedFuzzer};
+
+let config = IntegratedConfig {
+    ga_config: Config::default(),
+    use_constraints: true,
+    use_property_testing: true,
+    max_constraint_attempts: 10,
+    property_test_count: 50,
+    invariant_strength: 0.8,
+};
+
+let mut fuzzer = IntegratedFuzzer::new(config);
+let (ga, stats) = fuzzer.run();
 ```
 
 ## Phase 5 Completion Status
@@ -171,6 +326,13 @@ cargo test
 cargo doc --open
 ```
 
+### Running Examples
+
+```bash
+# Run the integrated demo
+cargo run --release
+```
+
 ## Contributing
 
 1. Fork the repository
@@ -187,10 +349,13 @@ MIT License - see LICENSE file for details.
 
 - The ZK community for excellent proof system implementations
 - Contributors to the Halo2 and Gnark projects
+- Z3 developers for the SMT solver
+- QuickCheck and Proptest developers for property-based testing inspiration
 - Early testers and bug reporters
 
 ---
 
 **Version:** 0.1.0  
 **Last Updated:** March 31, 2026  
-**Phase 5 Status:** Complete
+**Phase 5 Status:** Complete  
+**Phase 6 Status:** Complete
